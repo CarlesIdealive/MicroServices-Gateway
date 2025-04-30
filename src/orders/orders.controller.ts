@@ -15,7 +15,6 @@ import { ORDER_SERVICE } from 'src/config';
 import { firstValueFrom } from 'rxjs';
 import { CreateOrderDto, PaginationOrderDto, StatusOrderDto } from './dto/orders.dto';
 import { PaginationDto } from 'src/common';
-import { OrderStatus, OrderStatusList } from './enums/order.enum';
 
 @Controller('orders')
 export class OrdersController {
