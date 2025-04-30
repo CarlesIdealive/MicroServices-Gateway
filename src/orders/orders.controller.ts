@@ -11,7 +11,7 @@ import {
   Patch
 } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { ORDER_SERVICE } from 'src/config';
+import { NATS_SERVICE } from 'src/config';
 import { firstValueFrom } from 'rxjs';
 import { CreateOrderDto, PaginationOrderDto, StatusOrderDto } from './dto/orders.dto';
 import { PaginationDto } from 'src/common';
@@ -19,14 +19,14 @@ import { PaginationDto } from 'src/common';
 @Controller('orders')
 export class OrdersController {
   constructor(
-    @Inject(ORDER_SERVICE) private readonly ordersClient: ClientProxy
+    @Inject(NATS_SERVICE) private readonly client: ClientProxy
   ) {}
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
     try {
       
-      const newOrder = this.ordersClient.send('createOrder', createOrderDto);
+      const newOrder = this.client.send('createOrder', createOrderDto);
       return newOrder;
 
     } catch (error) {
@@ -36,7 +36,7 @@ export class OrdersController {
 
   @Get()
   findAll(@Body() paginationOrderDto: PaginationOrderDto) {
-    return this.ordersClient.send('findAllOrders', paginationOrderDto);
+    return this.client.send('findAllOrders', paginationOrderDto);
   }
 
 
@@ -44,7 +44,7 @@ export class OrdersController {
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     try {
       const order = await firstValueFrom(
-        this.ordersClient.send('findOneOrder', {id})
+        this.client.send('findOneOrder', {id})
       );
       return order;
     } catch (error) {
@@ -59,7 +59,7 @@ export class OrdersController {
     @Query() pagination: PaginationDto
   ) {
     try {
-      const orders = await this.ordersClient.send('findAllOrders', { 
+      const orders = await this.client.send('findAllOrders', { 
         ...pagination ,
         status: statusDto.status
       })
@@ -75,7 +75,7 @@ export class OrdersController {
     @Body() statusDto: StatusOrderDto
   ) {
     try {
-      return this.ordersClient.send('changeOrderStatus', { 
+      return this.client.send('changeOrderStatus', { 
         id,
         status: statusDto.status
       })
