@@ -7,7 +7,6 @@ import {
   Inject, 
   ParseUUIDPipe,
   Query,
-  ParseEnumPipe,
   Patch
 } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
@@ -35,8 +34,15 @@ export class OrdersController {
   }
 
   @Get()
-  findAll(@Body() paginationOrderDto: PaginationOrderDto) {
-    return this.client.send('findAllOrders', paginationOrderDto);
+  async findAll(@Body() paginationOrderDto: PaginationOrderDto) {
+    try {
+      const orders = await firstValueFrom(
+        this.client.send('findAllOrders', paginationOrderDto)
+      )
+      return orders;
+    } catch (error) {
+      throw new RpcException(error);
+    }
   }
 
 
